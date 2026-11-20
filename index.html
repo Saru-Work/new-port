@@ -1,0 +1,540 @@
+<!doctype html>
+<html lang="en" class="is-loading">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Saruhasan Thavachelvan — Backend &amp; AI Software Engineer, Sri Lanka</title>
+  <meta name="description" content="Portfolio of Saruhasan Thavachelvan, a software engineer in Sri Lanka building backend systems, REST APIs, and AI apps with LLMs and RAG. Projects, writing, and contact." />
+  <meta name="author" content="Saruhasan Thavachelvan" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
+  <!-- SEO: replace https://example.com with the real domain here, in the JSON-LD below, robots.txt and sitemap.xml -->
+  <link rel="canonical" href="https://example.com/" />
+
+  <!-- Icons -->
+  <link rel="icon" href="favicon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="apple-touch-icon.png" />
+  <link rel="manifest" href="site.webmanifest" />
+  <meta name="theme-color" content="#0c0c0b" />
+
+  <!-- Open Graph / social previews -->
+  <meta property="og:type" content="profile" />
+  <meta property="og:site_name" content="Saruhasan Thavachelvan" />
+  <meta property="og:title" content="Saruhasan Thavachelvan — Backend &amp; AI Software Engineer" />
+  <meta property="og:description" content="Backend systems, APIs and AI-powered web &amp; mobile apps — reliable, maintainable and built to scale." />
+  <meta property="og:url" content="https://example.com/" />
+  <meta property="og:image" content="https://example.com/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="Saruhasan Thavachelvan — Systems with edge. Models with intent. Shipped with pace." />
+  <meta property="og:locale" content="en_US" />
+  <meta property="profile:first_name" content="Saruhasan" />
+  <meta property="profile:last_name" content="Thavachelvan" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Saruhasan Thavachelvan — Backend &amp; AI Software Engineer" />
+  <meta name="twitter:description" content="Backend systems, APIs and AI-powered web &amp; mobile apps — reliable, maintainable and built to scale." />
+  <meta name="twitter:image" content="https://example.com/og-image.png" />
+
+  <!-- Structured data -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@graph": [
+      {
+        "@type": "WebSite",
+        "@id": "https://example.com/#website",
+        "url": "https://example.com/",
+        "name": "Saruhasan Thavachelvan",
+        "inLanguage": "en"
+      },
+      {
+        "@type": "ProfilePage",
+        "@id": "https://example.com/#profile",
+        "url": "https://example.com/",
+        "name": "Saruhasan Thavachelvan — Backend & AI Software Engineer",
+        "isPartOf": { "@id": "https://example.com/#website" },
+        "mainEntity": { "@id": "https://example.com/#person" },
+        "dateModified": "2026-11-20"
+      },
+      {
+        "@type": "Person",
+        "@id": "https://example.com/#person",
+        "name": "Saruhasan Thavachelvan",
+        "alternateName": "Saru",
+        "url": "https://example.com/",
+        "image": "https://example.com/og-image.png",
+        "jobTitle": "Software Engineer",
+        "description": "Software engineer building backend systems, APIs, and AI-powered web and mobile apps.",
+        "email": "mailto:saruatwork@gmail.com",
+        "address": { "@type": "PostalAddress", "addressCountry": "LK" },
+        "alumniOf": { "@type": "CollegeOrUniversity", "name": "Sabaragamuwa University of Sri Lanka" },
+        "knowsAbout": ["Backend development", "REST APIs", "System design", "Distributed systems", "Large language models", "Retrieval-augmented generation", "TypeScript", "Python", "Node.js", "FastAPI", "PostgreSQL", "Docker", "AWS"],
+        "sameAs": [
+          "https://github.com/Saru-Work",
+          "https://www.linkedin.com/in/saruhasan-thavachelvan",
+          "https://medium.com/@saruatwork"
+        ]
+      }
+    ]
+  }
+  </script>
+  <script>
+    // Apply a saved theme before first paint (avoids a flash).
+    try { var t = localStorage.getItem("theme"); if (t === "light" || t === "dark") document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Inter+Tight:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&family=Unbounded:wght@200..900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <!-- ───────────── Loader ───────────── -->
+  <div class="loader" id="loader" aria-hidden="true">
+    <div class="loader__top">
+      <span>~/saru</span>
+      <span>build v3.0.0</span>
+      <span id="loadMsg">resolving modules…</span>
+    </div>
+    <div class="loader__count"><span id="loadNum">000</span></div>
+    <div class="loader__bar"><i id="loadBar"></i></div>
+  </div>
+
+  <!-- ───────────── Cursor ───────────── -->
+  <div class="cursor" id="cursor" aria-hidden="true">
+    <div class="cursor__ring"><span id="cursorLabel"></span></div>
+    <div class="cursor__dot"></div>
+  </div>
+
+  <!-- ───────────── Nav ───────────── -->
+  <header class="nav" id="nav">
+    <a class="nav__logo" href="#top" data-magnetic aria-label="Back to top">saru<span class="caret">_</span></a>
+    <nav class="nav__links" aria-label="Primary">
+      <a href="#work" data-hover-text="Work">Work</a>
+      <a href="#capabilities" data-hover-text="Focus">Focus</a>
+      <a href="#lab" data-hover-text="Lab">Lab</a>
+      <a href="#writing" data-hover-text="Writing">Writing</a>
+      <a href="#contact" data-hover-text="Contact">Contact</a>
+    </nav>
+    <div class="nav__meta">
+      <span class="status"><i class="beat-dot"></i>Open to opportunities</span>
+      <button class="kbd-btn mono" id="paletteBtn" aria-label="Open command palette"><kbd id="modKey">⌘</kbd><kbd>K</kbd></button>
+      <button class="theme-btn" data-theme-toggle aria-label="Toggle light and dark mode">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" /><path d="M12 7a5 5 0 0 0 0 10z" class="theme-btn__half" /></svg>
+      </button>
+      <span class="mono"><span id="clock">--:--</span> SLST</span>
+    </div>
+    <div class="nav__mobile">
+      <button class="theme-btn" data-theme-toggle aria-label="Toggle light and dark mode">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="5" /><path d="M12 7a5 5 0 0 0 0 10z" class="theme-btn__half" /></svg>
+      </button>
+      <button class="nav__menu" id="menuBtn" aria-expanded="false" aria-controls="menu">
+        <span>Menu</span><span>Close</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="menu" id="menu" aria-hidden="true">
+    <nav>
+      <a href="#work"><sup>01</sup>Work</a>
+      <a href="#capabilities"><sup>02</sup>Focus</a>
+      <a href="#lab"><sup>03</sup>Lab</a>
+      <a href="#writing"><sup>04</sup>Writing</a>
+      <a href="#contact"><sup>05</sup>Contact</a>
+    </nav>
+    <p class="mono"><a href="mailto:saruatwork@gmail.com">saruatwork@gmail.com</a></p>
+  </div>
+
+  <!-- ───────────── Command palette ───────────── -->
+  <div class="palette" id="palette" role="dialog" aria-modal="true" aria-label="Command palette" hidden>
+    <div class="palette__panel">
+      <div class="palette__input">
+        <span class="mono">&gt;</span>
+        <input id="paletteInput" type="text" placeholder="Type a command or search…" autocomplete="off" spellcheck="false" aria-controls="paletteList" />
+        <kbd class="mono">esc</kbd>
+      </div>
+      <ul class="palette__list" id="paletteList" role="listbox"></ul>
+    </div>
+  </div>
+
+  <main>
+
+    <!-- ───────────── Hero ───────────── -->
+    <section class="hero" id="top">
+      <canvas class="hero__gl" id="gl" aria-hidden="true"></canvas>
+      <div class="hero__fallback" aria-hidden="true"></div>
+
+      <div class="hero__inner">
+        <h1 class="eyebrow hero__eyebrow"><span>(01)</span> Saruhasan Thavachelvan — Software engineer · Backend &amp; AI</h1>
+
+        <p class="hero__title">
+          <span class="line"><span class="line__in">Systems with <em>edge.</em></span></span>
+          <span class="line"><span class="line__in">Models with <em>intent.</em></span></span>
+          <span class="line"><span class="line__in">Shipped with <em>pace.</em></span></span>
+        </p>
+
+        <div class="hero__foot">
+          <p class="hero__blurb">
+            I build backend systems, APIs and AI-powered web &amp; mobile apps —
+            software that's reliable, maintainable and <em>built to scale.</em>
+          </p>
+          <div class="hero__readout mono" aria-hidden="true">
+            <span>Loss landscape · live</span>
+            <span>x <b id="rx">0.500</b></span>
+            <span>y <b id="ry">0.500</b></span>
+            <span>∇ <b id="rg">0.000</b></span>
+          </div>
+          <a href="#work" class="hero__scroll" data-magnetic data-cursor="Scroll">
+            <span>Scroll</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v16m0 0-6-6m6 6 6-6" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── Marquee ───────────── -->
+    <section class="marquee" aria-label="Stack">
+      <div class="marquee__track" id="marquee">
+        <div class="marquee__group">
+          <span>TypeScript</span><i>✺</i>
+          <span>Python</span><i>✺</i>
+          <span>Node.js</span><i>✺</i>
+          <span>FastAPI</span><i>✺</i>
+          <span>RAG Pipelines</span><i>✺</i>
+          <span>LLM Apps</span><i>✺</i>
+          <span>PostgreSQL</span><i>✺</i>
+          <span>Docker</span><i>✺</i>
+          <span>System Design</span><i>✺</i>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── About ───────────── -->
+    <section class="about" id="about">
+      <h2 class="about__label eyebrow"><span>(02)</span> About</h2>
+      <p class="about__text" id="aboutText">
+        I'm Saruhasan — a software engineer and undergraduate at Sabaragamuwa
+        University of Sri Lanka. I build backend systems, APIs, and web and
+        mobile apps that are reliable and built to scale — and I'm pushing
+        into distributed systems, cloud infrastructure and applied AI: LLM
+        applications, RAG and re-ranking.
+      </p>
+      <div class="about__aside">
+        <div class="term" id="term" data-cursor="whoami">
+          <div class="term__bar"><i></i><i></i><i></i><span class="mono">saru — zsh — 80×24</span></div>
+          <pre class="term__body" id="termBody" aria-label="Terminal: whoami, stack and motto"></pre>
+        </div>
+        <ul class="about__facts mono">
+          <li><span>Based in</span><span>Sri Lanka</span></li>
+          <li><span>Studying at</span><span>Sabaragamuwa University</span></li>
+          <li><span>Focus</span><span>Backend · System design · AI</span></li>
+          <li><span>Currently</span><span>RAG pipelines &amp; re-ranking</span></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- ───────────── Work ───────────── -->
+    <section class="work" id="work">
+      <header class="section-head">
+        <p class="eyebrow"><span>(03)</span> Selected work</p>
+        <h2 class="section-title" data-reveal>Things I've <em>built</em></h2>
+        <p class="section-note mono">2025 — 2026 · from github.com/Saru-Work</p>
+      </header>
+
+      <!--
+        Edit projects here.
+        href            : link for the row (GitHub repo / live demo)
+        --a / --b / --c : preview colours
+        data-glyph      : big character on the preview
+        data-stack      : stack line on the preview
+        data-metric     : highlight pill on the preview
+      -->
+      <ol class="work__list" id="workList">
+        <li class="work__item" style="--a:#ff5b1f;--b:#3b1cff;--c:#f1ede4" data-glyph="⇄" data-stack="TypeScript · Node.js · MongoDB · Docker" data-metric="JWT auth · per-developer app ownership">
+          <a href="https://github.com/Saru-Work/Unified-Dev-Gateway" target="_blank" rel="noopener" data-cursor="Code ↗">
+            <span class="work__num mono">01</span>
+            <span class="work__title">OpenGate</span>
+            <span class="work__tags">Developer gateway in front of WSO2 API Manager</span>
+            <span class="work__year mono">2026</span>
+            <span class="work__thumb"></span>
+          </a>
+        </li>
+        <li class="work__item" style="--a:#c9ff3b;--b:#0f5e4a;--c:#0c1a14" data-glyph="⧉" data-stack="JavaScript · Chrome extension · LLM prompts" data-metric="Colours, layout &amp; motion → AI prompt">
+          <a href="https://github.com/Saru-Work/siteclone-ai-extension" target="_blank" rel="noopener" data-cursor="Code ↗">
+            <span class="work__num mono">02</span>
+            <span class="work__title">SiteClone AI</span>
+            <span class="work__tags">Turns any website into a prompt to rebuild it</span>
+            <span class="work__year mono">2026</span>
+            <span class="work__thumb"></span>
+          </a>
+        </li>
+        <li class="work__item" style="--a:#e6e1ff;--b:#6b3bff;--c:#0d0b1a" data-glyph="⌘" data-stack="Swift 6 · SwiftUI · AppKit · zero deps" data-metric="0.09% avg CPU · 38 recogniser tests">
+          <a href="https://github.com/Saru-Work/macgesture" target="_blank" rel="noopener" data-cursor="Code ↗">
+            <span class="work__num mono">03</span>
+            <span class="work__title">MacGesture</span>
+            <span class="work__tags">System-wide custom trackpad gestures for macOS</span>
+            <span class="work__year mono">2026</span>
+            <span class="work__thumb"></span>
+          </a>
+        </li>
+        <li class="work__item" style="--a:#9ad7ff;--b:#1a2bd6;--c:#e9eef4" data-glyph="▦" data-stack="React Native · FastAPI · MongoDB · JWT" data-metric="Roles: admin · lecturer · student">
+          <a href="https://github.com/Saru-Work/HallSync-Personal" target="_blank" rel="noopener" data-cursor="Code ↗">
+            <span class="work__num mono">04</span>
+            <span class="work__title">HallSync</span>
+            <span class="work__tags">Lecture hall scheduling for a university faculty</span>
+            <span class="work__year mono">2026</span>
+            <span class="work__thumb"></span>
+          </a>
+        </li>
+        <li class="work__item" style="--a:#ffd3e8;--b:#ff2d6f;--c:#1b0a12" data-glyph="♡" data-stack="React · Express · Prisma · MySQL" data-metric="Memberships · payments · admin verification">
+          <a href="https://github.com/Saru-Work/viwahaa-matrimony-old" target="_blank" rel="noopener" data-cursor="Code ↗">
+            <span class="work__num mono">05</span>
+            <span class="work__title">Viwahaa</span>
+            <span class="work__tags">Full-stack matrimony platform</span>
+            <span class="work__year mono">2026</span>
+            <span class="work__thumb"></span>
+          </a>
+        </li>
+        <li class="work__item" style="--a:#ffb13b;--b:#8a1c00;--c:#21130a" data-glyph="λ" data-stack="Python · scikit-learn · Jupyter" data-metric="Tuned random forest + explainability">
+          <a href="https://github.com/Saru-Work/MODEL-X-Dementia-Project" target="_blank" rel="noopener" data-cursor="Code ↗">
+            <span class="work__num mono">06</span>
+            <span class="work__title">MODEL-X</span>
+            <span class="work__tags">Dementia prediction from non-medical data · team hackathon</span>
+            <span class="work__year mono">2025</span>
+            <span class="work__thumb"></span>
+          </a>
+        </li>
+      </ol>
+
+      <div class="preview" id="preview" aria-hidden="true">
+        <div class="preview__track" id="previewTrack"></div>
+      </div>
+    </section>
+
+    <!-- ───────────── Focus ───────────── -->
+    <section class="services" id="capabilities">
+      <header class="section-head">
+        <p class="eyebrow"><span>(04)</span> Focus</p>
+        <h2 class="section-title" data-reveal>Where I <em>dig in</em></h2>
+      </header>
+
+      <div class="services__list">
+        <details class="service" open>
+          <summary>
+            <span class="service__num mono">F/01</span>
+            <span class="service__name">AI Engineering</span>
+            <span class="service__meta mono">LLMs · RAG · re-ranking</span>
+            <span class="service__plus" aria-hidden="true"></span>
+          </summary>
+          <div class="service__body">
+            <p>LLM applications that do something useful: embeddings and retrieval-augmented generation, re-ranking for better answers, and local or hosted models wired into real products.</p>
+            <ul class="chips"><li>OpenAI</li><li>LangChain</li><li>Hugging Face</li><li>Ollama</li><li>Vector databases</li></ul>
+          </div>
+        </details>
+        <details class="service">
+          <summary>
+            <span class="service__num mono">F/02</span>
+            <span class="service__name">Backend &amp; APIs</span>
+            <span class="service__meta mono">design · cache · queue</span>
+            <span class="service__plus" aria-hidden="true"></span>
+          </summary>
+          <div class="service__body">
+            <p>Clean, well-documented REST APIs with sensible auth, caching, message queues and databases tuned for the way the data is actually used.</p>
+            <ul class="chips"><li>Node.js</li><li>Express</li><li>FastAPI</li><li>Spring Boot</li><li>PostgreSQL</li><li>MongoDB</li><li>Redis</li><li>Prisma</li></ul>
+          </div>
+        </details>
+        <details class="service">
+          <summary>
+            <span class="service__num mono">F/03</span>
+            <span class="service__name">System Design</span>
+            <span class="service__meta mono">scale · fault tolerance</span>
+            <span class="service__plus" aria-hidden="true"></span>
+          </summary>
+          <div class="service__body">
+            <p>Architectures that stay simple as they grow — clear service boundaries, distributed-systems fundamentals, and failure modes thought through before they happen.</p>
+            <ul class="chips"><li>Distributed systems</li><li>API gateways</li><li>Data modelling</li><li>Fault tolerance</li></ul>
+          </div>
+        </details>
+        <details class="service">
+          <summary>
+            <span class="service__num mono">F/04</span>
+            <span class="service__name">Cloud &amp; DevOps</span>
+            <span class="service__meta mono">containers · CI/CD · AWS</span>
+            <span class="service__plus" aria-hidden="true"></span>
+          </summary>
+          <div class="service__body">
+            <p>Containerised services, automated pipelines and infrastructure on AWS — so shipping is boring and repeatable.</p>
+            <ul class="chips"><li>Docker</li><li>GitHub Actions</li><li>AWS</li><li>Nginx</li><li>Linux</li></ul>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ───────────── Lab: live neural net ───────────── -->
+    <section class="lab" id="lab">
+      <div class="lab__intro">
+        <p class="eyebrow"><span>(05)</span> Lab</p>
+        <h2 class="section-title" data-reveal>A neural net, training <em>live.</em></h2>
+        <p class="lab__copy">
+          A tiny 2 → 16 → 16 → 1 network with backprop and Adam, written from
+          scratch in plain JavaScript — no libraries. Click the canvas to drop
+          points, switch class to add the other kind, and watch it learn the
+          decision boundary in real time.
+        </p>
+        <ul class="lab__hints mono">
+          <li><kbd>Click</kbd> add point</li>
+          <li><kbd>Shift</kbd> + click — other class</li>
+        </ul>
+      </div>
+
+      <div class="lab__machine">
+        <div class="lab__stats">
+          <div><span class="mono">Epoch</span><b id="labEpoch">0</b></div>
+          <div><span class="mono">Loss</span><b id="labLoss">—</b></div>
+          <div><span class="mono">Accuracy</span><b id="labAcc">—</b></div>
+          <svg class="lab__spark" id="labSpark" viewBox="0 0 120 36" preserveAspectRatio="none" aria-hidden="true"><polyline points="" /></svg>
+        </div>
+        <div class="lab__canvas-wrap" data-cursor="Add">
+          <canvas class="lab__canvas" id="labCanvas" aria-label="Decision boundary of the neural network. Click to add training points."></canvas>
+        </div>
+        <div class="lab__controls">
+          <div class="seg" role="group" aria-label="Point class">
+            <button class="seg__btn is-on" data-class="1"><i class="dot dot--a"></i>Class A</button>
+            <button class="seg__btn" data-class="0"><i class="dot dot--b"></i>Class B</button>
+          </div>
+          <div class="seg" role="group" aria-label="Dataset">
+            <button class="seg__btn" data-preset="spiral">Spiral</button>
+            <button class="seg__btn" data-preset="circle">Circle</button>
+            <button class="seg__btn" data-preset="xor">XOR</button>
+          </div>
+          <button class="btn-ghost mono" id="labPlay" aria-pressed="true">Pause</button>
+          <button class="btn-ghost mono" id="labReset">Re-init</button>
+          <button class="btn-ghost mono" id="labClear">Clear</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── Process (horizontal) ───────────── -->
+    <section class="process" id="process">
+      <div class="process__sticky">
+        <header class="process__head">
+          <h2 class="eyebrow"><span>(06)</span> How I work</h2>
+          <p class="mono process__progress"><span id="procNum">01</span> / 04</p>
+        </header>
+        <div class="process__track" id="processTrack">
+          <article class="step">
+            <span class="step__num">01</span>
+            <h3>Understand the problem.</h3>
+            <p>Who's it for, what hurts today, and what does “working” look like? Requirements first, code second.</p>
+          </article>
+          <article class="step">
+            <span class="step__num">02</span>
+            <h3>Design the solution.</h3>
+            <p>Data model, API contracts and architecture on paper — with the trade-offs written down, not discovered in production.</p>
+          </article>
+          <article class="step">
+            <span class="step__num">03</span>
+            <h3>Engineer it.</h3>
+            <p>Typed, tested, containerised and documented. Code someone else can pick up and run on day one.</p>
+          </article>
+          <article class="step">
+            <span class="step__num">04</span>
+            <h3>Improve it.</h3>
+            <p>Measure, profile, refactor, repeat. Every version should be faster, clearer or more reliable than the last.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ───────────── Toolbox ───────────── -->
+    <section class="toolbox" id="toolbox">
+      <header class="section-head">
+        <p class="eyebrow"><span>(07)</span> Toolbox</p>
+        <h2 class="section-title" data-reveal>The <em>stack</em></h2>
+      </header>
+      <div class="toolbox__grid">
+        <div class="tool"><span class="mono">Languages</span><p>TypeScript · JavaScript · Python · Java · Swift</p></div>
+        <div class="tool"><span class="mono">Frontend</span><p>React · Next.js · React Native · Tailwind CSS</p></div>
+        <div class="tool"><span class="mono">Backend</span><p>Node.js · Express · FastAPI · Spring Boot</p></div>
+        <div class="tool"><span class="mono">Databases</span><p>PostgreSQL · MySQL · MongoDB · Redis · Prisma · Firebase</p></div>
+        <div class="tool"><span class="mono">DevOps &amp; Cloud</span><p>Docker · GitHub Actions · AWS · Nginx · Linux</p></div>
+        <div class="tool"><span class="mono">AI &amp; LLMs</span><p>OpenAI · LangChain · Hugging Face · Ollama · Vector DBs</p></div>
+      </div>
+    </section>
+
+    <!-- ───────────── Writing ───────────── -->
+    <section class="writing" id="writing">
+      <header class="section-head">
+        <p class="eyebrow"><span>(08)</span> Writing</p>
+        <h2 class="section-title" data-reveal>Notes from the <em>backend</em></h2>
+        <a class="section-note mono writing__all" href="https://medium.com/@saruatwork" target="_blank" rel="noopener" data-hover-text="All on Medium ↗">All on Medium ↗</a>
+      </header>
+
+      <!--
+        These are rendered at build time so the section works offline / without JS.
+        On load, main.js fetches the live Medium feed and refreshes this list
+        (new articles show up automatically).
+      -->
+      <ol class="writing__list" id="writingList">
+        <li class="post">
+          <a href="https://medium.com/@saruatwork/implementing-jwt-based-authentication-using-node-js-and-mongodb-2d6994e8811d" target="_blank" rel="noopener" data-cursor="Read ↗">
+            <span class="post__meta mono"><time datetime="2026-02-07">Feb 07, 2026</time><span>15 min read</span></span>
+            <span class="post__main">
+              <span class="post__title">Implementing JWT-Based Authentication Using Node.js and MongoDB</span>
+              <span class="post__excerpt">Putting the theory into practice — a simple authentication system with Node.js and MongoDB, built step by step with JSON Web Tokens.</span>
+              <span class="post__tags"><span>nodejs</span><span>mongodb</span><span>jwt</span><span>authentication</span></span>
+            </span>
+            <span class="post__arrow" aria-hidden="true">↗</span>
+          </a>
+        </li>
+        <li class="post">
+          <a href="https://medium.com/@saruatwork/what-is-jwt-the-guide-to-json-web-tokens-661220a9e686" target="_blank" rel="noopener" data-cursor="Read ↗">
+            <span class="post__meta mono"><time datetime="2025-11-14">Nov 14, 2025</time><span>4 min read</span></span>
+            <span class="post__main">
+              <span class="post__title">What is JWT? The Guide to JSON Web Tokens</span>
+              <span class="post__excerpt">What JSON Web Tokens are, how they work, and why they took over from traditional session-based authentication.</span>
+              <span class="post__tags"><span>jwt</span><span>authentication</span><span>authorization</span></span>
+            </span>
+            <span class="post__arrow" aria-hidden="true">↗</span>
+          </a>
+        </li>
+      </ol>
+    </section>
+
+  </main>
+
+  <!-- ───────────── Contact / Footer ───────────── -->
+  <footer class="contact" id="contact">
+    <p class="eyebrow"><span>(09)</span> Contact</p>
+    <h2 class="contact__title" data-reveal>Got a hard problem<br />worth <em>solving?</em></h2>
+
+    <button class="contact__email" id="emailBtn" data-cursor="Copy">
+      <span class="contact__email-text" id="emailText">saruatwork@gmail.com</span>
+      <span class="contact__email-hint mono" id="emailHint">Click to copy</span>
+    </button>
+
+    <div class="contact__cols">
+      <ul class="mono">
+        <li><a href="https://github.com/Saru-Work" target="_blank" rel="me noopener" data-hover-text="GitHub ↗">GitHub ↗</a></li>
+        <li><a href="https://linkedin.com/in/saruhasan-thavachelvan" target="_blank" rel="me noopener" data-hover-text="LinkedIn ↗">LinkedIn ↗</a></li>
+        <li><a href="https://medium.com/@saruatwork" target="_blank" rel="me noopener" data-hover-text="Medium ↗">Medium ↗</a></li>
+        <li><a href="mailto:saruatwork@gmail.com" data-hover-text="Email ↗">Email ↗</a></li>
+      </ul>
+      <ul class="mono">
+        <li>Sri Lanka · <span id="clock2">--:--</span></li>
+        <li>Open to roles &amp; collaborations</li>
+        <li>Press <kbd class="mod-key-mirror">⌘</kbd><kbd>K</kbd> for shortcuts</li>
+      </ul>
+      <a href="#top" class="btn-round btn-round--sm" data-magnetic data-cursor="Up">Top ↑</a>
+    </div>
+
+    <div class="bigname" id="bigname" aria-label="Saru">SARU</div>
+
+    <div class="contact__legal mono">
+      <span>© 2026 Saruhasan Thavachelvan</span>
+      <span>No frameworks: a hand-written shader, a hand-written neural net, plain JS.</span>
+    </div>
+  </footer>
+
+  <script src="main.js" defer></script>
+</body>
+</html>
