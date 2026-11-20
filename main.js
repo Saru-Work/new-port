@@ -58,7 +58,6 @@
   function onThemeChanged() {
     readPalette();
     drawTerrain(0, true);
-    renderLab();
   }
   function toggleTheme(origin) {
     const next = currentTheme() === "dark" ? "light" : "dark";
@@ -89,25 +88,59 @@
   }
 
   // ───────── Loader ─────────
+  // Percentage follows real progress (DOM → fonts → window load), never
+  // runs ahead of it, and is eased so it always feels smooth.
   function runLoader() {
-    const num = $("#loadNum"), bar = $("#loadBar"), msg = $("#loadMsg"), loader = $("#loader");
-    const msgs = ["resolving modules…", "compiling shaders…", "initialising weights…", "warming the cache…", "ready."];
+    const digits = $("#loadNum"), bar = $("#loadBar"), msg = $("#loadMsg"), loader = $("#loader");
+    const msgs = ["resolving modules…", "compiling shaders…", "loading type…", "linking assets…", "ready."];
     const finish = () => {
       root.classList.add("is-loaded");
-      setTimeout(() => { root.classList.remove("is-loading"); loader.style.display = "none"; }, reduced ? 0 : 1150);
+      setTimeout(() => { root.classList.remove("is-loading"); loader.style.display = "none"; }, reduced ? 0 : 1300);
     };
     if (reduced) { finish(); return; }
-    const dur = 1700, start = performance.now();
-    const fontsReady = Promise.race([document.fonts ? document.fonts.ready : Promise.resolve(), new Promise((r) => setTimeout(r, 2500))]);
+
+    // odometer: hundreds · tens · ones, each a reel of 0–9
+    const reels = [0, 1, 2].map(() => {
+      const slot = document.createElement("span");
+      slot.className = "loader__slot";
+      slot.innerHTML = `<span class="loader__reel">${"0123456789".split("").map((d) => `<b>${d}</b>`).join("")}</span>`;
+      digits.appendChild(slot);
+      return { slot, reel: slot.firstChild };
+    });
+    const show = (v) => {
+      const d = [Math.floor(v / 100), Math.floor(v / 10) % 10, v % 10];
+      reels[0].slot.classList.toggle("is-off", v < 100);
+      reels[1].slot.classList.toggle("is-off", v < 10);
+      reels.forEach((r, i) => (r.reel.style.transform = `translateY(${-d[i] * 10}%)`));
+    };
+    show(0);
+
+    const done = { fonts: false, load: document.readyState === "complete" };
+    (document.fonts ? document.fonts.ready : Promise.resolve()).then(() => (done.fonts = true));
+    if (!done.load) addEventListener("load", () => (done.load = true), { once: true });
+    setTimeout(() => { done.fonts = done.load = true; }, 4000); // never hang on a slow asset
+
+    const minDur = 1400, start = performance.now();
+    let shown = 0, last = -1;
     const tick = (now) => {
-      const p = clamp((now - start) / dur, 0, 1);
-      const e = p < 0.5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2;
-      const v = Math.round(e * 100);
-      num.textContent = String(v).padStart(3, "0");
-      bar.style.width = v + "%";
-      msg.textContent = msgs[Math.min(msgs.length - 1, Math.floor(p * msgs.length))];
-      if (p < 1) requestAnimationFrame(tick);
-      else fontsReady.then(() => setTimeout(finish, 150));
+      const t = clamp((now - start) / minDur, 0, 1);
+      const timeP = 1 - Math.pow(1 - t, 3);
+      // Decide "finished" from the flags, never from summed floats
+      // (0.35 + 0.3 + 0.35 === 0.9999999999999999 in JS).
+      const ready = done.fonts && done.load;
+      const cap = ready ? 1 : 0.35 + (done.fonts ? 0.3 : 0) + (done.load ? 0.3 : 0);
+      const target = Math.min(timeP, cap);
+      shown += (target - shown) * 0.1;
+      if (ready && t >= 1 && shown > 0.995) shown = 1;
+      const v = Math.round(shown * 100);
+      if (v !== last) {
+        last = v;
+        show(v);
+        bar.style.transform = `scaleX(${shown})`;
+        msg.textContent = msgs[Math.min(msgs.length - 1, Math.floor(shown * (msgs.length - 1)))];
+      }
+      if (shown < 1) requestAnimationFrame(tick);
+      else setTimeout(finish, 350);
     };
     requestAnimationFrame(tick);
   }
@@ -327,268 +360,18 @@
     root.style.setProperty("--pulse", (beat.pulse * (reduced ? 0.3 : 1)).toFixed(3));
   }
 
-  // ───────── Lab: a tiny neural network, from scratch ─────────
-  const gauss = () => { let u = 0, v = 0; while (!u) u = Math.random(); while (!v) v = Math.random(); return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v); };
-  const IN_SCALE = 1.8;
-
-  function createNet(sizes) {
-    const net = { sizes, L: sizes.length - 1, t: 0, W: [], b: [], gW: [], gb: [], mW: [], vW: [], mb: [], vb: [],
-      a: sizes.map((n) => new Float64Array(n)), d: sizes.map((n) => new Float64Array(n)) };
-    for (let l = 0; l < net.L; l++) {
-      const m = sizes[l], n = sizes[l + 1], sc = Math.sqrt(2 / (m + n));
-      net.W[l] = Float64Array.from({ length: n * m }, () => gauss() * sc);
-      net.b[l] = new Float64Array(n);
-      for (const k of ["gW", "mW", "vW"]) net[k][l] = new Float64Array(n * m);
-      for (const k of ["gb", "mb", "vb"]) net[k][l] = new Float64Array(n);
-    }
-    return net;
-  }
-  function forward(net, x, y) {
-    const { sizes, W, b, a, L } = net;
-    a[0][0] = x * IN_SCALE; a[0][1] = y * IN_SCALE;
-    for (let l = 0; l < L; l++) {
-      const m = sizes[l], n = sizes[l + 1], Wl = W[l], bl = b[l], al = a[l], out = a[l + 1];
-      for (let i = 0; i < n; i++) {
-        let s = bl[i];
-        for (let j = 0; j < m; j++) s += Wl[i * m + j] * al[j];
-        out[i] = l === L - 1 ? 1 / (1 + Math.exp(-s)) : Math.tanh(s);
-      }
-    }
-    return a[L][0];
-  }
-  function trainStep(net, pts, lr) {
-    const { sizes, W, a, d, L, gW, gb } = net;
-    for (let l = 0; l < L; l++) { gW[l].fill(0); gb[l].fill(0); }
-    let loss = 0, correct = 0;
-    for (const p of pts) {
-      const out = forward(net, p.x, p.y), y = p.c;
-      loss -= y * Math.log(out + 1e-7) + (1 - y) * Math.log(1 - out + 1e-7);
-      if ((out > 0.5) === (y === 1)) correct++;
-      d[L][0] = out - y; // sigmoid + binary cross-entropy
-      for (let l = L - 1; l >= 0; l--) {
-        const m = sizes[l], n = sizes[l + 1], dn = d[l + 1], al = a[l], Wl = W[l];
-        for (let i = 0; i < n; i++) {
-          gb[l][i] += dn[i];
-          for (let j = 0; j < m; j++) gW[l][i * m + j] += dn[i] * al[j];
-        }
-        if (l > 0) {
-          for (let j = 0; j < m; j++) {
-            let s = 0;
-            for (let i = 0; i < n; i++) s += Wl[i * m + j] * dn[i];
-            d[l][j] = s * (1 - al[j] * al[j]); // tanh'
-          }
-        }
-      }
-    }
-    // Adam
-    const N = pts.length, b1 = 0.9, b2 = 0.999;
-    net.t++;
-    const c1 = 1 - Math.pow(b1, net.t), c2 = 1 - Math.pow(b2, net.t);
-    const adam = (w, g, mo, ve) => {
-      for (let i = 0; i < w.length; i++) {
-        const gi = g[i] / N;
-        mo[i] = b1 * mo[i] + (1 - b1) * gi;
-        ve[i] = b2 * ve[i] + (1 - b2) * gi * gi;
-        w[i] -= (lr * (mo[i] / c1)) / (Math.sqrt(ve[i] / c2) + 1e-8);
-      }
-    };
-    for (let l = 0; l < L; l++) { adam(W[l], gW[l], net.mW[l], net.vW[l]); adam(net.b[l], gb[l], net.mb[l], net.vb[l]); }
-    return { loss: loss / N, acc: correct / N };
-  }
-
-  const lab = {
-    canvas: $("#labCanvas"), ctx: null, off: null, offCtx: null, img: null,
-    net: null, pts: [], cls: 1, running: true, visible: false, epoch: 0, losses: [], last: null, frame: 0,
-    w: 0, h: 0, gw: 64, gh: 44, ry: 0.6875,
-  };
-  const DATASETS = {
-    spiral() {
-      const pts = [], n = 70;
-      for (let k = 0; k < 2; k++) for (let i = 0; i < n; i++) {
-        const t = i / n, r = 0.08 + t * 0.82, ang = t * 3.4 * Math.PI + k * Math.PI;
-        pts.push({ x: r * Math.cos(ang) + gauss() * 0.02, y: r * Math.sin(ang) * 0.72 + gauss() * 0.02, c: k });
-      }
-      return pts;
-    },
-    circle() {
-      const pts = [];
-      for (let i = 0; i < 140; i++) {
-        const inner = i % 2 === 0, ang = Math.random() * Math.PI * 2;
-        const r = inner ? Math.sqrt(Math.random()) * 0.3 : 0.48 + Math.random() * 0.14;
-        pts.push({ x: r * Math.cos(ang), y: r * Math.sin(ang) * 0.92, c: inner ? 1 : 0 });
-      }
-      return pts;
-    },
-    xor() {
-      const pts = [];
-      for (let i = 0; i < 140; i++) {
-        const sx = Math.random() < 0.5 ? -1 : 1, sy = Math.random() < 0.5 ? -1 : 1;
-        pts.push({ x: sx * 0.42 + gauss() * 0.13, y: sy * 0.3 + gauss() * 0.1, c: sx * sy > 0 ? 1 : 0 });
-      }
-      return pts;
-    },
-  };
-
-  function labResize() {
-    const c = lab.canvas, dpr = Math.min(devicePixelRatio || 1, 2);
-    lab.w = c.width = Math.round(c.clientWidth * dpr);
-    lab.h = c.height = Math.round(c.clientHeight * dpr);
-    lab.ry = lab.h / lab.w; // y range is ±ry
-    lab.gh = Math.max(16, Math.round(lab.gw * lab.ry));
-    lab.off.width = lab.gw; lab.off.height = lab.gh;
-    lab.img = lab.offCtx.createImageData(lab.gw, lab.gh);
-    renderLab();
-  }
-  function labReinit() {
-    lab.net = createNet([2, 16, 16, 1]);
-    lab.epoch = 0; lab.losses = []; lab.last = null;
-    updateLabStats();
-  }
-  function loadPreset(name) {
-    lab.pts = DATASETS[name]();
-    $$("[data-preset]").forEach((b) => b.classList.toggle("is-on", b.dataset.preset === name));
-    labReinit();
-    setRunning(true);
-  }
-  function setRunning(on) {
-    lab.running = on;
-    const b = $("#labPlay");
-    b.setAttribute("aria-pressed", on);
-    b.textContent = on ? "Pause" : "Train";
-  }
-  function initLab() {
-    if (!lab.canvas) return;
-    lab.ctx = lab.canvas.getContext("2d");
-    lab.off = document.createElement("canvas");
-    lab.offCtx = lab.off.getContext("2d");
-    labReinit();
-    lab.pts = DATASETS.spiral();
-    $('[data-preset="spiral"]').classList.add("is-on");
-    labResize();
-    addEventListener("resize", labResize);
-    new IntersectionObserver(([e]) => (lab.visible = e.isIntersecting), { threshold: 0.1 }).observe(lab.canvas);
-
-    const toDomain = (e) => {
-      const r = lab.canvas.getBoundingClientRect();
-      return { x: ((e.clientX - r.left) / r.width) * 2 - 1, y: -(((e.clientY - r.top) / r.height) * 2 - 1) * lab.ry };
-    };
-    const add = (e, cls) => {
-      const p = toDomain(e);
-      lab.pts.push({ x: p.x, y: p.y, c: cls });
-      if (lab.pts.length > 400) lab.pts.shift();
-      $$("[data-preset]").forEach((b) => b.classList.remove("is-on"));
-      setRunning(true);
-      beat.pulse = Math.max(beat.pulse, 0.6);
-      renderLab();
-    };
-    lab.canvas.addEventListener("pointerdown", (e) => {
-      if (e.button === 2) return;
-      add(e, e.shiftKey ? 1 - lab.cls : lab.cls);
-    });
-    lab.canvas.addEventListener("contextmenu", (e) => { e.preventDefault(); add(e, 1 - lab.cls); });
-
-    $$("[data-class]").forEach((b) => b.addEventListener("click", () => {
-      lab.cls = +b.dataset.class;
-      $$("[data-class]").forEach((x) => x.classList.toggle("is-on", x === b));
-    }));
-    $$("[data-preset]").forEach((b) => b.addEventListener("click", () => loadPreset(b.dataset.preset)));
-    $("#labPlay").addEventListener("click", () => setRunning(!lab.running));
-    $("#labReset").addEventListener("click", () => { labReinit(); setRunning(true); });
-    $("#labClear").addEventListener("click", () => {
-      lab.pts = []; labReinit();
-      $$("[data-preset]").forEach((b) => b.classList.remove("is-on"));
-      renderLab();
-    });
-  }
-  function updateLab() {
-    if (!lab.net || !lab.visible) return;
-    const hasBoth = lab.pts.some((p) => p.c === 1) && lab.pts.some((p) => p.c === 0);
-    if (lab.running && hasBoth) {
-      const steps = reduced ? 1 : 4;
-      for (let s = 0; s < steps; s++) {
-        lab.last = trainStep(lab.net, lab.pts, 0.03);
-        lab.epoch++;
-        if (lab.epoch % 8 === 0) { lab.losses.push(lab.last.loss); if (lab.losses.length > 140) lab.losses.shift(); }
-        if (lab.epoch % 150 === 0) beat.pulse = Math.max(beat.pulse, 0.5);
-      }
-      updateLabStats();
-    }
-    if (++lab.frame % 2 === 0) renderLab();
-  }
-  function updateLabStats() {
-    $("#labEpoch").textContent = lab.epoch.toLocaleString("en");
-    $("#labLoss").textContent = lab.last ? lab.last.loss.toFixed(3) : "—";
-    $("#labAcc").textContent = lab.last ? Math.round(lab.last.acc * 100) + "%" : "—";
-    const pl = $("#labSpark polyline");
-    if (!lab.losses.length) { pl.setAttribute("points", ""); return; }
-    const max = Math.max(...lab.losses, 0.01);
-    pl.setAttribute("points", lab.losses.map((l, i) => `${(i / 139) * 120},${34 - (l / max) * 32}`).join(" "));
-  }
-  function renderLab() {
-    if (!lab.ctx || !lab.net || !lab.img) return;
-    const { gw, gh, img, ctx, w, h, ry } = lab;
-    const [br, bg, bb] = palette.bg, [ar, ag, ab] = palette.accent, [ir, ig, ib] = palette.ink;
-    const data = img.data;
-    for (let j = 0; j < gh; j++) {
-      const y = -(((j + 0.5) / gh) * 2 - 1) * ry;
-      for (let i = 0; i < gw; i++) {
-        const x = ((i + 0.5) / gw) * 2 - 1;
-        const p = forward(lab.net, x, y);
-        const s = Math.pow(Math.abs(p - 0.5) * 2, 0.7) * 0.32;
-        const A = p > 0.5;
-        const o = (j * gw + i) * 4;
-        data[o] = br + ((A ? ar : ir) - br) * s;
-        data[o + 1] = bg + ((A ? ag : ig) - bg) * s;
-        data[o + 2] = bb + ((A ? ab : ib) - bb) * s;
-        data[o + 3] = 255;
-      }
-    }
-    lab.offCtx.putImageData(img, 0, 0);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(lab.off, 0, 0, w, h);
-
-    // axes
-    ctx.strokeStyle = `rgba(${ir},${ig},${ib},0.12)`;
-    ctx.lineWidth = 1;
-    ctx.beginPath();
-    ctx.moveTo(w / 2, 0); ctx.lineTo(w / 2, h);
-    ctx.moveTo(0, h / 2); ctx.lineTo(w, h / 2);
-    ctx.stroke();
-
-    // points
-    const dpr = w / lab.canvas.clientWidth || 1;
-    const rad = 4.2 * dpr;
-    for (const p of lab.pts) {
-      const px = ((p.x + 1) / 2) * w, py = ((-p.y / ry + 1) / 2) * h;
-      ctx.beginPath();
-      ctx.arc(px, py, rad, 0, Math.PI * 2);
-      ctx.fillStyle = p.c === 1 ? `rgb(${ar},${ag},${ab})` : `rgb(${ir},${ig},${ib})`;
-      ctx.fill();
-      ctx.lineWidth = 1.5 * dpr;
-      ctx.strokeStyle = `rgb(${br},${bg},${bb})`;
-      ctx.stroke();
-    }
-    if (!lab.pts.length) {
-      ctx.fillStyle = `rgba(${ir},${ig},${ib},0.5)`;
-      ctx.font = `${12 * dpr}px "JetBrains Mono", monospace`;
-      ctx.textAlign = "center";
-      ctx.fillText("CLICK TO ADD TRAINING DATA", w / 2, h / 2 - 12 * dpr);
-    }
-  }
-
   // ───────── Terminal ─────────
   function initTerminal() {
     const body = $("#termBody");
     if (!body) return;
     const script = [
-      { cmd: "whoami", out: `<span class="c">saruhasan</span> — software engineer · backend &amp; AI` },
+      { cmd: "whoami", out: `<span class="c">saruhasan</span> — software engineer · backend &amp; full-stack` },
       { cmd: "cat stack.json", out:
 `{
   <span class="k">"lang"</span>: [<span class="c">"ts","python","java"</span>],
   <span class="k">"api"</span>:  [<span class="c">"node","fastapi","spring"</span>],
   <span class="k">"data"</span>: [<span class="c">"postgres","mongodb","redis"</span>],
-  <span class="k">"ai"</span>:   [<span class="c">"openai","langchain","ollama"</span>]
+  <span class="k">"learning"</span>: [<span class="c">"ai engineering"</span>]
 }` },
       { cmd: "cat motto.txt", out: `Understand the problem. Design the solution.\nEngineer it. Improve it.` },
     ];
@@ -628,16 +411,13 @@
     const commands = [
       { group: "Navigate", label: "Work", hint: "03", run: go("#work") },
       { group: "Navigate", label: "Focus areas", hint: "04", run: go("#capabilities") },
-      { group: "Navigate", label: "Lab — live neural net", hint: "05", run: go("#lab") },
-      { group: "Navigate", label: "How I work", hint: "06", run: go("#process") },
-      { group: "Navigate", label: "Toolbox — tech stack", hint: "07", run: go("#toolbox") },
-      { group: "Navigate", label: "Writing — articles", hint: "08", run: go("#writing") },
-      { group: "Navigate", label: "Contact", hint: "09", run: go("#contact") },
+      { group: "Navigate", label: "How I work", hint: "05", run: go("#process") },
+      { group: "Navigate", label: "Toolbox — tech stack", hint: "06", run: go("#toolbox") },
+      { group: "Navigate", label: "Writing — articles", hint: "07", run: go("#writing") },
+      { group: "Navigate", label: "Contact", hint: "08", run: go("#contact") },
       { group: "Navigate", label: "Back to top", hint: "01", run: go("#top") },
       { group: "Actions", label: "Toggle light / dark mode", hint: "theme", run: () => toggleTheme($("[data-theme-toggle]")) },
       { group: "Actions", label: "Copy email address", hint: "copy", run: () => copyEmail() },
-      { group: "Actions", label: "Train the network on a spiral", hint: "lab", run: () => { go("#lab")(); loadPreset("spiral"); } },
-      { group: "Actions", label: "Train the network on XOR", hint: "lab", run: () => { go("#lab")(); loadPreset("xor"); } },
       ...Object.entries(CONFIG.links).map(([label, url]) => ({ group: "Links", label, hint: "↗", run: openLink(url) })),
     ];
     let filtered = commands, sel = 0, lastFocus = null;
@@ -652,7 +432,7 @@
       const q = input.value.trim();
       filtered = q ? commands.filter((c) => match(q, c.label)) : commands;
       sel = clamp(sel, 0, Math.max(0, filtered.length - 1));
-      if (!filtered.length) { list.innerHTML = `<li class="palette__empty">No matches. Try “lab” or “theme”.</li>`; return; }
+      if (!filtered.length) { list.innerHTML = `<li class="palette__empty">No matches. Try “work” or “theme”.</li>`; return; }
       let html = "", group = "";
       filtered.forEach((c, i) => {
         if (!q && c.group !== group) { group = c.group; html += `<li class="palette__group" role="presentation">${group}</li>`; }
@@ -927,7 +707,6 @@
     updateAbout();
     updatePreview();
     updateProcess();
-    updateLab();
     updateBigName(now / 1000);
     requestAnimationFrame(frame);
   }
@@ -945,7 +724,6 @@
   initTerminal();
   initReveals();
   initWork();
-  initLab();
   setupProcess();
   addEventListener("resize", setupProcess);
   initNumbers();
